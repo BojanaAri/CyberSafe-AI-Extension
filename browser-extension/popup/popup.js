@@ -1,12 +1,13 @@
 import {getCurrentTab} from "../background.js";
 
-const reportButtonIdElement = document.getElementById("report-button")
+const contentIdElement = document.getElementById("content");
+const reportButtonIdElement = document.getElementById("report-button");
 reportButtonIdElement.onclick = () => {
     chrome.runtime.sendMessage({event: 'onStart'})
-}
+};
 
 
-const response = await getCurrentTab()
+const response = await getCurrentTab();
 fetch('http://localhost:8000/api/analyze', {
     method: 'POST',
     headers:{
@@ -16,4 +17,4 @@ fetch('http://localhost:8000/api/analyze', {
 })
     .then(response => response.text())
     .then(data => console.log(data));
-// delete
+

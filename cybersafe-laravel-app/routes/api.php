@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\AnalyzeController;
-use App\Http\Controllers\ScrapingController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 

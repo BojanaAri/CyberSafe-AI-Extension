@@ -2,8 +2,6 @@
 
 namespace App;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Symfony\Component\BrowserKit\HttpBrowser;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpClient\HttpClient;
@@ -19,14 +17,16 @@ class WebScraperService
     }
 
     public function scraping(string $url): string{
+        // HttpBrowser just provides features similar to those of a browser, such as cookie and session handling
         $browser = new HttpBrowser(HttpClient::create());
+
+        // Automatically parses the HTML document
         $crawler = $browser->request('GET', $url);
         $html = $crawler->filter('body')->each(function (Crawler $node) {
             return $this->extract_visible_text($node);
         });
         return trim(implode("\n", array_filter($html)));
     }
-
 
     private function extract_visible_text(Crawler $node): string
     {

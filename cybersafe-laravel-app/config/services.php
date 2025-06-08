@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'huggingface' => [
+        'token' => env('HUGGINGFACE_API_KEY'),
+        'timeout' => 30,
+        'retry' => 3,
+    ],
+
 ];
