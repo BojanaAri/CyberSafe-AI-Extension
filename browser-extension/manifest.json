@@ -7,10 +7,9 @@
     "default_popup": "popup/popup.html"
   },
   "icons": {
-    "16" : "images/bully-16.png",
-    "24" : "images/bully-24.png",
-    "32" : "images/bully-32.png",
-    "64" : "images/bully-64.png"
+    "24" : "images/service-24.png",
+    "32" : "images/service-32.png",
+    "64" : "images/service-64.png"
   },
   "background": {
     "service_worker": "background.js",

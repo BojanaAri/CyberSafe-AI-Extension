@@ -9,3 +9,4 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::post('/analyze', [AnalyzeController::class, 'analyze']);
+Route::get('/scrape', [AnalyzeController::class, 'scrape']);

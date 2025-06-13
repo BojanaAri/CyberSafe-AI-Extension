@@ -9,7 +9,7 @@ chrome.runtime.onMessage.addListener(data => {
         default:
             break;
     }
-})
+});
 
 export async function getCurrentTab(){
     let queryOptions = {
@@ -18,5 +18,5 @@ export async function getCurrentTab(){
 
     let [tab] = await chrome.tabs.query(queryOptions);
     return tab;
-}
+};
 

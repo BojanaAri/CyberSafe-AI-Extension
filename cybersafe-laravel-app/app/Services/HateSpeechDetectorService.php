@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace app\Services;
 
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
@@ -32,7 +32,7 @@ class HateSpeechDetectorService
                 ])->withHeaders([
                     'Authorization' => 'Bearer '.$this->apiKey,
                     'Content-Type' => 'application/json',
-                ])
+                    ])
                     ->timeout(30) // Increase timeout
                     ->retry(3, 1000) // Retry 3 times with 1 second delay
                     ->post($this->apiUrl, [
@@ -42,7 +42,6 @@ class HateSpeechDetectorService
                 // Logic for comparing
                 if ($response->successful()) {
                     $results = $response->json();
-
                     $analysis = collect($results[0])->sortByDesc('score')->first();
 
                     if ($analysis['score'] > 0.5 or $response_item == $lastItem) {
@@ -73,5 +72,4 @@ class HateSpeechDetectorService
         }
         return ['error' => 'Unexpected end of processing'];
     }
-
 }
