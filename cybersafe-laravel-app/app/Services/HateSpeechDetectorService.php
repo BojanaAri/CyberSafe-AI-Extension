@@ -3,6 +3,7 @@
 namespace app\Services;
 
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -27,17 +28,7 @@ class HateSpeechDetectorService
             $lastItem = end($scraper_response_array);
 
             foreach ($scraper_response_array as $response_item) {
-                $response = Http::withOptions([
-                    'verify' => false // Disables SSL verification
-                ])->withHeaders([
-                    'Authorization' => 'Bearer '.$this->apiKey,
-                    'Content-Type' => 'application/json',
-                    ])
-                    ->timeout(30) // Increase timeout
-                    ->retry(3, 1000) // Retry 3 times with 1 second delay
-                    ->post($this->apiUrl, [
-                        'inputs' => $response_item
-                    ]);
+                $response = $this->sendRequest($response_item);
 
                 // Logic for comparing
                 if ($response->successful()) {
@@ -71,5 +62,23 @@ class HateSpeechDetectorService
             return ['error' => 'Processing failed', 'message' => $e->getMessage()];
         }
         return ['error' => 'Unexpected end of processing'];
+    }
+
+    /**
+     * @throws ConnectionException
+     */
+    private function sendRequest(string $response_item): Response
+    {
+        return Http::withOptions([
+            'verify' => false // Disables SSL verification
+        ])->withHeaders([
+            'Authorization' => 'Bearer '.$this->apiKey,
+            'Content-Type' => 'application/json',
+        ])
+            ->timeout(30) // Increase timeout
+            ->retry(3, 1000) // Retry 3 times with 1 second delay
+            ->post($this->apiUrl, [
+                'inputs' => $response_item
+            ]);
     }
 }

@@ -10,6 +10,14 @@ use Illuminate\Support\Facades\Log;
 
 class AnalyzeController extends Controller
 {
+    private WebScraperService $webScraperService;
+    private HateSpeechDetectorService $hateSpeechDetectorService;
+
+    public function __construct(WebScraperService $webScraperService, HateSpeechDetectorService $hateSpeechDetectorService){
+        $this->webScraperService = $webScraperService;
+        $this->hateSpeechDetectorService = $hateSpeechDetectorService;
+    }
+
     public function analyze(Request $request): JsonResponse
     {
         // 1. Get Url from browser extension
@@ -19,28 +27,30 @@ class AnalyzeController extends Controller
         }
 
         // 2. Scrape the website
-        $webScraperService = new WebScraperService();
-        $scraper_response = $webScraperService->puppeteer_scraping($url);
+        $scraper_response = $this->webScraperService->puppeteer_scraping($url);
 
         if (isset($scraper_response['error'])) {
             Log::error($scraper_response['error']);
+            return response()->json(['error' => 'Failed to scrape the website.'], 500);
         }
 
         // 3. Detect hate speech
         try {
-            $detector = new HateSpeechDetectorService();
-            $result = $detector->detect($scraper_response['text']);
+            $result = $this->hateSpeechDetectorService->detect($scraper_response['text']);
+
+            if (isset($result['error'])) {
+                return response()->json($result, 500);
+            }
 
             return response()->json([
                 'label' => $result['label'],
-                'confidence' => $result['score'],
+                'score' => $result['score'],
                 'is_toxic' => $result['score'] > 0.5
             ]);
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
             ], 500);
         }
     }
