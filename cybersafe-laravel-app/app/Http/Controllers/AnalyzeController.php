@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\Report;
 use App\Services\HateSpeechDetectorService;
 use App\Services\WebScraperService;
 use Illuminate\Http\JsonResponse;
@@ -39,6 +40,18 @@ class AnalyzeController extends Controller
 
             if (isset($result['error'])) {
                 return response()->json($result, 500);
+            }
+
+            $detectedText = strtolower($scraper_response);
+            $detectedWords = preg_split('/[^a-z0-9]+/', $detectedText);
+
+            $flaggedReports = Report::all();
+            foreach ($flaggedReports as $report) {
+                if (in_array(strtolower($report->flagged_text), $detectedWords)) {
+                    $result['label'] = $report->flagged_text;
+                    $result['score'] = 1.0;
+                    break;
+                }
             }
 
             return response()->json([
