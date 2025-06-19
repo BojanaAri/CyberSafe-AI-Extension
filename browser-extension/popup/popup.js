@@ -1,4 +1,4 @@
-import {getCurrentTab} from "../background.js";
+import {getAnalysis, submitReport} from "../background.js";
 
 const bodyElement = document.getElementById('body');
 const dogImageElement = document.getElementById('dog-gif');
@@ -6,42 +6,32 @@ const aiSpanElement = document.getElementById('ai');
 const detectionIdElement = document.getElementById("detectionElement");
 const reportButtonIdElement = document.getElementById("report-button");
 const sicHelplineIdElement = document.getElementById('sic-helpline');
-reportButtonIdElement.onclick = () => {
-    chrome.runtime.sendMessage({event: 'onStart'})
-};
+const reportSubmitIdElement = document.getElementById("submit-report");
 
-const response = await getCurrentTab();
-fetch('http://localhost:8000/api/analyze', {
-    method: 'POST',
-    headers:{
-        'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    body: new URLSearchParams({ url: response['url'] })
+reportButtonIdElement.addEventListener('click', () => {
+    const reportForm = document.getElementById('report-form');
+    reportForm.hidden = !reportForm.hidden;
+});
+
+reportSubmitIdElement.addEventListener('click', async () => {
+    const flaggedText = document.getElementById('flagged_text').value;
+    const reason = document.getElementById('reason').value;
+    const contentType = document.getElementById('content_type').value;
+
+    if (!flaggedText) {
+        alert("Please provide the harmful content.");
+        return;
+    }
+
+    await submitReport({ flaggedText, reason, contentType })
 })
-    .then(response => response.text())
-    .then(data => {
-        if (typeof data === 'string' && data.trim().startsWith("<")){
-            throw new Error("Processing failed. Try again later");
-        }
 
-        const parsed_json = JSON.parse(data)
+await getAnalysis(updateUI);
 
-        if (parsed_json['error']){
-            throw new Error("Processing failed. Try again later");
-        }
-        if (parsed_json.is_toxic === false){
-            parsed_json.label = 'No Harmful '
-            parsed_json.score = 0.0
-        }
-
-        detectionIdElement.innerText = capitalizeFirstLetter(parsed_json.label);
-        changeExtensionStyleDependingOnScore(parseFloat(parsed_json.score));
-    })
-    .catch(error => {
-        console.log(error)
-        detectionIdElement.innerText = error;
-        changeExtensionStyleDependingOnScore(1.0);
-    });
+function updateUI({ label, score }) {
+    detectionIdElement.innerText = capitalizeFirstLetter(label);
+    changeExtensionStyleDependingOnScore(score);
+}
 
 function capitalizeFirstLetter(str){
     return str.charAt(0).toUpperCase() + str.slice(1) + " Content Detected";
@@ -53,7 +43,6 @@ function changeExtensionStyleDependingOnScore(score){
 
     if (score >= 0.5){
         sicHelplineIdElement.hidden = false;
-        // sicHelplineIdElement.getElementById('kriz-link').style.color = "#282d30";
     }
     if (score >= 0.55 && score < 0.7) {
         background_color = "rgb(175 172 62)";

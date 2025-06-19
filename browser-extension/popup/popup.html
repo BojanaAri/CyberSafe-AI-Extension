@@ -33,6 +33,13 @@
             </div>
         </div>
     </div>
+    <!-- REPORT FORM (Add id attributes to inputs) -->
+    <div hidden="hidden" class="container m-3 mt-1 text-center p-0" style="width: 220px" id="report-form">
+        <input type="hidden" name="content_type" id="content_type" value="post">
+        <label for="flagged_text"></label><input type="text" name="flagged_text" id="flagged_text" class="form-control p-1 mt-2" placeholder="Triggering text..">
+        <label for="reason"></label><textarea name="reason" id="reason" placeholder="Optional reason..." class="form-control mt-2 p-1 "></textarea>
+        <button type="button" id="submit-report" class="btn btn-danger btn-sm mt-2">Report as Hateful</button>
+    </div>
 
 </body>
 <script type="module" src="popup.js"></script>
