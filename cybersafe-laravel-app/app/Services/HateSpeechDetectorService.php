@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Services;
+namespace App\Services;
 
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
@@ -24,6 +24,10 @@ class HateSpeechDetectorService
     public function detect(string $text)
     {
         try {
+            $text = mb_substr($text, 0, 4000);
+            $text = mb_convert_encoding($text, 'UTF-8', 'UTF-8');
+            $text = preg_replace('/[\x00-\x1F\x80-\x9F]/u', '', $text);
+
             $scraper_response_array = str_split($text, self::BATCH_LENGTH);
             $lastItem = end($scraper_response_array);
 
@@ -75,8 +79,8 @@ class HateSpeechDetectorService
             'Authorization' => 'Bearer '.$this->apiKey,
             'Content-Type' => 'application/json',
         ])
-            ->timeout(30) // Increase timeout
-            ->retry(3, 1000) // Retry 3 times with 1 second delay
+            ->timeout(15)
+            ->retry(2, 1000)
             ->post($this->apiUrl, [
                 'inputs' => $response_item
             ]);

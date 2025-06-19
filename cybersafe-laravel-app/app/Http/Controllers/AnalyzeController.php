@@ -1,9 +1,8 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use app\Services\HateSpeechDetectorService;
-use app\Services\WebScraperService;
+use App\Services\HateSpeechDetectorService;
+use App\Services\WebScraperService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -29,14 +28,14 @@ class AnalyzeController extends Controller
         // 2. Scrape the website
         $scraper_response = $this->webScraperService->puppeteer_scraping($url);
 
-        if (isset($scraper_response['error'])) {
-            Log::error($scraper_response['error']);
+        if ($scraper_response == "Error => No output from scraper") {
+            Log::error($scraper_response);
             return response()->json(['error' => 'Failed to scrape the website.'], 500);
         }
 
         // 3. Detect hate speech
         try {
-            $result = $this->hateSpeechDetectorService->detect($scraper_response['text']);
+            $result = $this->hateSpeechDetectorService->detect($scraper_response);
 
             if (isset($result['error'])) {
                 return response()->json($result, 500);

@@ -55,9 +55,9 @@ puppeteer.use(StealthPlugin());
             return extractText();
         });
 
-        console.log(JSON.stringify({ success: true, text }));
+        process.stdout.write(Buffer.from(JSON.stringify({ success: true, text }), 'utf8'));
     } catch (err) {
-        console.log(JSON.stringify({ success: false, error: err.message }));
+        process.stdout.write(Buffer.from(JSON.stringify({ success: false, error: err.message }), 'utf8'));
     } finally {
         await browser.close();
     }

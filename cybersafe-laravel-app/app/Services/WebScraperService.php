@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Services;
+namespace App\Services;
 
 use Symfony\Component\BrowserKit\HttpBrowser;
 use Symfony\Component\DomCrawler\Crawler;
@@ -58,16 +58,16 @@ class WebScraperService
         return trim($text);
     }
 
-    public function puppeteer_scraping(string $url): array
+    public function puppeteer_scraping(string $url): string
     {
         $scriptPath = base_path('public/web_scraper/scrape.js');
         $command = 'node "' . $scriptPath . '" ' . escapeshellarg($url);
         $output = shell_exec($command);
 
         if ($output) {
-            return json_decode($output, true);
+            return $output;
         }
 
-        return ['success' => false, 'error' => 'No output from scraper'];
+        return 'Error => No output from scraper';
     }
 }
